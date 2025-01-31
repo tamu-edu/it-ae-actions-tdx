@@ -1,0 +1,111 @@
+name: TDx Request Management
+description: Modifies TDx Requests
+inputs:
+  action-version:
+    type: string
+    title: Action Version
+    description: The version of the action to use
+    required: true
+  github-token:
+    type: string
+    title: GitHub Token
+    description: The GitHub token to use for authentication
+    required: true
+  tdx-base-url:
+    type: string
+    title: TDx Base URL
+    description: The base URL of the TDx instance
+    required: true
+  tdx-account_id:
+    type: string
+    title: TDx Account ID
+    description: The username to use for authentication
+    required: true
+  tdx-secret:
+    type: string
+    title: TDx Secret
+    description: The password to use for authentication
+    required: true
+  tdx-request-id:
+    type: string
+    title: TDx Request ID
+    description: The ID of the TDx request to modify
+    required: true
+  tdx-action:
+    type: string
+    title: TDx Action
+    description: The action to perform on the TDx request
+    required: true
+    enum:
+      - add_comment_and_notify
+      - close_request
+      - update_request_variable_and_close_request
+
+  # Usage:
+  # The inputs to use for the TDx action. The inputs are
+  # different for each action. Use the following as a guide -
+  # * add_comment_and_notify - `my comment`
+  # * close_request - ``
+  # * update_request_variable_and_close_request - `my_variable` and `my value`
+
+  tdx-input1:
+    type: string
+    title: TDx Input 1
+    description: The first input to the TDx action
+    required: true
+  tdx-input2:
+    type: string
+    title: TDx Input 2
+    description: The second input to the TDx action (optional)
+    required: false
+
+outputs:
+  output:
+    description: Output from the TDx action script
+    value: ${{ steps.run-tdx-action.outputs.output }}
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout actions repo
+      uses: actions/checkout@v4
+      with:
+        repository: tamu-edu/it-ae-actions-tdx
+        path: action
+        ref: ${{ inputs.action-version }}
+        token: ${{ inputs.github-token }}
+
+    - name: Install python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Install python dependencies
+      shell: bash
+      run: pip install -r ./action/python/requirements.txt
+
+    - name: run-tdx-action
+      shell: bash
+      env:
+        TDX_BASE_URL: ${{ inputs.tdx-base-url }}
+        TDX_ACCOUNT_ID: ${{ inputs.tdx-account_id }}
+        TDX_SECRET: ${{ inputs.tdx-secret }}
+      run: |
+        ARGS="--request_id ${{ inputs.tdx-request-id }}"
+        if [[ "${{ inputs.tdx-action }}" == "add_comment_and_notify" ]]; then
+          ARGS="${ARGS} add_comment_and_notify --comment \"${{ inputs.tdx-input1 }}\""
+        elif [[ "${{ inputs.tdx-action }}" == "update_request_variable_and_close_request" ]]; then
+          ARGS="${ARGS} update_request_variable_and_close_request --variable_name ${{ inputs.tdx-input1 }} --variable_value \"${{ inputs.tdx-input2 }}\""
+        elif [[ "${{ inputs.tdx-action }}" == "close_request" ]]; then
+          ARGS="${ARGS} close_request --close"
+        else
+          echo "Invalid action: '${{ inputs.tdx-action }}'"
+          exit 1
+        fi
+
+        echo "ARGS: ${ARGS}"
+
+        eval python ./action/python/tdx_updater.py ${ARGS} 2>&1 | tee /tmp/output.txt
+        echo "output<<EOF" >> $GITHUB_OUTPUT
+        cat /tmp/output.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
