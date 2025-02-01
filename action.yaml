@@ -16,7 +16,7 @@ inputs:
     title: TDx Base URL
     description: The base URL of the TDx instance
     required: true
-  tdx-account_id:
+  tdx-account-id:
     type: string
     title: TDx Account ID
     description: The username to use for authentication
@@ -87,7 +87,7 @@ runs:
       shell: bash
       env:
         TDX_BASE_URL: ${{ inputs.tdx-base-url }}
-        TDX_ACCOUNT_ID: ${{ inputs.tdx-account_id }}
+        TDX_ACCOUNT_ID: ${{ inputs.tdx-account-id }}
         TDX_SECRET: ${{ inputs.tdx-secret }}
       run: |
         ARGS="--request_id ${{ inputs.tdx-request-id }}"
