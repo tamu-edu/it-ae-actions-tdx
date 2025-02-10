@@ -16,6 +16,7 @@ steps:
       tdx-secret: ${{ secrets.TDX_SECRET }}
       action-version: v1.0
       tdx-request-id: 111
+      tdx-flow-id: 253422cd-fa19-4362-86ef-983fab35eb53
       tdx-action: close_request
       tdx-input1: ""
       github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -32,6 +33,7 @@ steps:
       tdx-secret: ${{ secrets.TDX_SECRET }}
       action-version: v1.0
       tdx-request-id: 112
+      tdx-flow-id: 253422cd-fa19-4362-86ef-983fab35eb53
       tdx-action: update_request_variable_and_close_request
       tdx-input1: resource_url
       tdx-input2: http://some.resource.url
