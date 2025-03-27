@@ -26,11 +26,12 @@ httpclient_logging_patch()
 
 
 class TDxUpdater:
-    def __init__(self, base_url: str, account_id: str, secret: str, flow_id: str) -> None:
+    def __init__(self, base_url: str, account_id: str, secret: str, flow_id: str, flow_version: str) -> None:
         self._base_url = base_url
         self._account_id = account_id
         self._secret = secret
         self._flow_id = flow_id
+        self._flow_version = flow_version
 
     def _get_auth_header(self) -> dict:
         return {
@@ -39,7 +40,7 @@ class TDxUpdater:
         }
     
     def _get_flow_url(self) -> str:
-        return f"{self._base_url}/start/{self._flow_id}"
+        return f"{self._base_url}/start/{self._flow_id}?flowVersion={self._flow_version}"
 
     def add_request_comment(self, request_id: str, comment: str) -> None:
         pass
@@ -68,6 +69,7 @@ def main():
 
     parser.add_argument("--request_id", help="ServiceNow request ID", required=True)
     parser.add_argument("--flow_id", help="Flow ID", required=True)
+    parser.add_argument("--flow_version", help="Flow Version", required=True)
     subparsers = parser.add_subparsers(help="Action to perform")
     group_comment_and_notify = subparsers.add_parser(
         "add_comment_and_notify", help="Add comment to request and notify user"
@@ -97,7 +99,8 @@ def main():
         base_url=os.environ["TDX_BASE_URL"],
         account_id=os.environ["TDX_ACCOUNT_ID"],
         secret=os.environ["TDX_SECRET"],
-        flow_id=args.flow_id
+        flow_id=args.flow_id,
+        flow_version=args.flow_version
     )
 
     if "add_comment_and_notify" in args:
