@@ -11,11 +11,6 @@ inputs:
     title: GitHub Token
     description: The GitHub token to use for authentication
     required: true
-  tdx-base-url:
-    type: string
-    title: TDx Base URL
-    description: The base URL of the TDx instance
-    required: true
   tdx-account-id:
     type: string
     title: TDx Account ID
@@ -96,7 +91,7 @@ runs:
     - name: run-tdx-action
       shell: bash
       env:
-        TDX_BASE_URL: ${{ inputs.tdx-base-url }}
+        TDX_BASE_URL: https://us1.teamdynamix.com/tdapp/app/flow/api/v1
         TDX_ACCOUNT_ID: ${{ inputs.tdx-account-id }}
         TDX_SECRET: ${{ inputs.tdx-secret }}
       run: |
